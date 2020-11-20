@@ -11,6 +11,13 @@ import { walk } from 'estree-walker';
 import { is_head } from './shared/is_head';
 import { Identifier, Node, UnaryExpression } from 'estree';
 
+let id = 0;
+
+function conditionName() {
+	return `__condition${id++}`;
+}
+
+
 function is_else_if(node: ElseBlock) {
 	return (
 		node && node.children.length === 1 && node.children[0].type === 'IfBlock'
@@ -69,6 +76,10 @@ class IfBlockBranch extends Wrapper {
 			),
 			type: (node as IfBlock).expression ? 'if' : 'else'
 		});
+
+		const condition = conditionName();
+		this.block.chunks.create.push(b`#target.setData({ ${condition}: true })`);
+		this.block.chunks.destroy.push(b`#target.setData({ ${condition}: false })`);
 
 		this.fragment = new FragmentWrapper(renderer, this.block, node.children, parent, strip_whitespace, next_sibling);
 
@@ -260,8 +271,8 @@ export default class IfBlockWrapper extends Wrapper {
 		const select_block_type = this.renderer.component.get_unique_name('select_block_type');
 		const current_block_type = block.get_unique_name('current_block_type');
 		const get_block = has_else
-			? x`${current_block_type}(#ctx)`
-			: x`${current_block_type} && ${current_block_type}(#ctx)`;
+			? x`${current_block_type}(#ctx, #target)`
+			: x`${current_block_type} && ${current_block_type}(#ctx, #target)`;
 
 		if (this.needs_update) {
 			block.chunks.init.push(b`
@@ -306,15 +317,23 @@ export default class IfBlockWrapper extends Wrapper {
 		}
 
 		if (this.needs_update) {
-			const update_mount_node = this.get_update_mount_node(anchor);
+			// const update_mount_node = this.get_update_mount_node(anchor);
 
+			// const change_block = b`
+			// 	${if_exists_condition ? b`if (${if_exists_condition}) ${name}.d(1)` : b`${name}.d(1)`};
+			// 	${name} = ${get_block};
+			// 	if (${name}) {
+			// 		${name}.c();
+			// 		${has_transitions && b`@transition_in(${name}, 1);`}
+			// 		${name}.m(${update_mount_node}, ${anchor});
+			// 	}
+			// `;
 			const change_block = b`
 				${if_exists_condition ? b`if (${if_exists_condition}) ${name}.d(1)` : b`${name}.d(1)`};
 				${name} = ${get_block};
 				if (${name}) {
 					${name}.c();
 					${has_transitions && b`@transition_in(${name}, 1);`}
-					${name}.m(${update_mount_node}, ${anchor});
 				}
 			`;
 
@@ -432,7 +451,7 @@ export default class IfBlockWrapper extends Wrapper {
 		);
 
 		if (this.needs_update) {
-			const update_mount_node = this.get_update_mount_node(anchor);
+			// const update_mount_node = this.get_update_mount_node(anchor);
 
 			const destroy_old_block = b`
 				@group_outros();
@@ -442,6 +461,17 @@ export default class IfBlockWrapper extends Wrapper {
 				@check_outros();
 			`;
 
+			// const create_new_block = b`
+			// 	${name} = ${if_blocks}[${current_block_type_index}];
+			// 	if (!${name}) {
+			// 		${name} = ${if_blocks}[${current_block_type_index}] = ${if_block_creators}[${current_block_type_index}](#ctx);
+			// 		${name}.c();
+			// 	} else {
+			// 		${name}.p(#ctx, #dirty);
+			// 	}
+			// 	${has_transitions && b`@transition_in(${name}, 1);`}
+			// 	${name}.m(${update_mount_node}, ${anchor});
+			// `;
 			const create_new_block = b`
 				${name} = ${if_blocks}[${current_block_type_index}];
 				if (!${name}) {
@@ -451,7 +481,6 @@ export default class IfBlockWrapper extends Wrapper {
 					${name}.p(#ctx, #dirty);
 				}
 				${has_transitions && b`@transition_in(${name}, 1);`}
-				${name}.m(${update_mount_node}, ${anchor});
 			`;
 
 			const change_block = has_else
@@ -528,8 +557,24 @@ export default class IfBlockWrapper extends Wrapper {
 		);
 
 		if (branch.dependencies.length > 0) {
-			const update_mount_node = this.get_update_mount_node(anchor);
+			// const update_mount_node = this.get_update_mount_node(anchor);
 
+			// const enter = b`
+			// 	if (${name}) {
+			// 		${dynamic && b`${name}.p(#ctx, #dirty);`}
+			// 		${
+			// 			has_transitions &&
+			// 			b`if (${block.renderer.dirty(branch.dependencies)}) {
+			// 				@transition_in(${name}, 1);
+			// 			}`
+			// 		}
+			// 	} else {
+			// 		${name} = ${branch.block.name}(#ctx);
+			// 		${name}.c();
+			// 		${has_transitions && b`@transition_in(${name}, 1);`}
+			// 		${name}.m(${update_mount_node}, ${anchor});
+			// 	}
+			// `;
 			const enter = b`
 				if (${name}) {
 					${dynamic && b`${name}.p(#ctx, #dirty);`}
@@ -543,7 +588,6 @@ export default class IfBlockWrapper extends Wrapper {
 					${name} = ${branch.block.name}(#ctx);
 					${name}.c();
 					${has_transitions && b`@transition_in(${name}, 1);`}
-					${name}.m(${update_mount_node}, ${anchor});
 				}
 			`;
 
