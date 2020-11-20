@@ -92,7 +92,8 @@ export default class AttributeWrapper extends BaseAttributeWrapper {
 				? '@xlink_attr'
 				: '@attr';
 
-		const is_legacy_input_type = element.renderer.component.compile_options.legacy && name === 'type' && this.parent.node.name === 'input';
+		// const is_legacy_input_type = element.renderer.component.compile_options.legacy && name === 'type' && this.parent.node.name === 'input';
+		const is_legacy_input_type = false;
 
 		const dependencies = this.get_dependencies();
 		const value = this.get_value(block);
@@ -101,10 +102,10 @@ export default class AttributeWrapper extends BaseAttributeWrapper {
 		const init = this.get_init(block, value);
 
 		if (is_legacy_input_type) {
-			block.chunks.hydrate.push(
-				b`@set_input_type(${element.var}, ${init});`
-			);
-			updater = b`@set_input_type(${element.var}, ${should_cache ? this.last : value});`;
+			// block.chunks.hydrate.push(
+			// 	b`@set_input_type(${element.var}, ${init});`
+			// );
+			// updater = b`@set_input_type(${element.var}, ${should_cache ? this.last : value});`;
 		} else if (this.is_select_value_attribute) {
 			// annoying special case
 			const is_multiple_select = element.node.get_static_attribute_value('multiple');
@@ -118,11 +119,11 @@ export default class AttributeWrapper extends BaseAttributeWrapper {
 			block.chunks.mount.push(b`
 				${updater}
 			`);
-		} else if (this.is_src) {
-			block.chunks.hydrate.push(
-				b`if (${element.var}.src !== ${init}) ${method}(${element.var}, "${name}", ${this.last});`
-			);
-			updater = b`${method}(${element.var}, "${name}", ${should_cache ? this.last : value});`;
+		// } else if (this.is_src) {
+		// 	block.chunks.hydrate.push(
+		// 		b`if (${element.var}.src !== ${init}) ${method}(${element.var}, "${name}", ${this.last});`
+		// 	);
+		// 	updater = b`${method}(${element.var}, "${name}", ${should_cache ? this.last : value});`;
 		} else if (property_name) {
 			block.chunks.hydrate.push(
 				b`${element.var}.${property_name} = ${init};`
@@ -131,10 +132,15 @@ export default class AttributeWrapper extends BaseAttributeWrapper {
 				? b`@prop_dev(${element.var}, "${property_name}", ${should_cache ? this.last : value});`
 				: b`${element.var}.${property_name} = ${should_cache ? this.last : value};`;
 		} else {
-			block.chunks.hydrate.push(
-				b`${method}(${element.var}, "${name}", ${init});`
-			);
-			updater = b`${method}(${element.var}, "${name}", ${should_cache ? this.last : value});`;
+			// block.chunks.hydrate.push(
+			// 	b`${method}(${element.var}, "${name}", ${init});`
+			// );
+			block.chunks.create.push(
+				b`#target.setData({ ${should_cache ? this.last : value}: ${init} })`
+			)
+			// updater = b`${method}(${element.var}, "${name}", ${should_cache ? this.last : value});`;
+			updater = b`#target.setData({ ${should_cache ? this.last : value}: ${should_cache ? this.last : value} })`;
+
 		}
 
 		if (is_indirectly_bound_value) {
