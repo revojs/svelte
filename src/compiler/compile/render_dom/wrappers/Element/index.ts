@@ -257,9 +257,9 @@ export default class ElementWrapper extends Wrapper {
 
 		block.add_variable(node);
 		const render_statement = this.get_render_statement(block);
-		block.chunks.create.push(
-			b`${node} = ${render_statement};`
-		);
+		// block.chunks.create.push(
+		// 	b`${node} = ${render_statement};`
+		// );
 
 		if (renderer.options.hydratable) {
 			if (parent_nodes) {
@@ -299,9 +299,9 @@ export default class ElementWrapper extends Wrapper {
 		const can_use_textcontent = this.can_use_textcontent();
 		if (!this.node.namespace && (this.can_use_innerhtml || can_use_textcontent) && this.fragment.nodes.length > 0) {
 			if (this.fragment.nodes.length === 1 && this.fragment.nodes[0].node.type === 'Text') {
-				block.chunks.create.push(
-					b`${node}.textContent = ${string_literal((this.fragment.nodes[0] as TextWrapper).data)};`
-				);
+				// block.chunks.create.push(
+				// 	b`${node}.textContent = ${string_literal((this.fragment.nodes[0] as TextWrapper).data)};`
+				// );
 			} else {
 				const state = {
 					quasi: {
@@ -320,9 +320,9 @@ export default class ElementWrapper extends Wrapper {
 				to_html((this.fragment.nodes as unknown as Array<ElementWrapper | TextWrapper>), block, literal, state, can_use_raw_text);
 				literal.quasis.push(state.quasi);
 
-				block.chunks.create.push(
-					b`${node}.${this.can_use_innerhtml ? 'innerHTML': 'textContent'} = ${literal};`
-				);
+				// block.chunks.create.push(
+				// 	b`${node}.${this.can_use_innerhtml ? 'innerHTML': 'textContent'} = ${literal};`
+				// );
 			}
 		} else {
 			this.fragment.nodes.forEach((child: Wrapper) => {

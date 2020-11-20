@@ -235,14 +235,14 @@ export default class IfBlockWrapper extends Wrapper {
 			block.chunks.intro.push(b`@transition_in(${name});`);
 		}
 
-		if (needs_anchor) {
-			block.add_element(
-				anchor as Identifier,
-				x`@empty()`,
-				parent_nodes && x`@empty()`,
-				parent_node
-			);
-		}
+		// if (needs_anchor) {
+		// 	block.add_element(
+		// 		anchor as Identifier,
+		// 		x`@empty()`,
+		// 		parent_nodes && x`@empty()`,
+		// 		parent_node
+		// 	);
+		// }
 
 		this.branches.forEach(branch => {
 			branch.fragment.render(branch.block, null, x`#nodes` as unknown as Identifier);

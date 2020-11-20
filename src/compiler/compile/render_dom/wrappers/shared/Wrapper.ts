@@ -59,14 +59,14 @@ export default class Wrapper {
 			? block.get_unique_name(`${this.var.name}_anchor`)
 			: (this.next && this.next.var) || { type: 'Identifier', name: 'null' };
 
-		if (needs_anchor) {
-			block.add_element(
-				anchor,
-				x`@empty()`,
-				parent_nodes && x`@empty()`,
-				parent_node as Identifier
-			);
-		}
+		// if (needs_anchor) {
+		// 	block.add_element(
+		// 		anchor,
+		// 		x`@empty()`,
+		// 		parent_nodes && x`@empty()`,
+		// 		parent_node as Identifier
+		// 	);
+		// }
 
 		return anchor;
 	}

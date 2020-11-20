@@ -17,14 +17,16 @@ export default class MustacheTagWrapper extends Tag {
 	render(block: Block, parent_node: Identifier, parent_nodes: Identifier) {
 		const { init } = this.rename_this_method(
 			block,
-			value => x`@set_data(${this.var}, ${value})`
+			// value => x`@set_data(${this.var}, ${value})`
+			value => x`#target.setData({ ${this.var}: ${value}, })`
 		);
 
 		block.add_element(
 			this.var,
-			x`@text(${init})`,
+			init,
+			// x`@text(${init})`,
 			parent_nodes && x`@claim_text(${parent_nodes}, ${init})`,
-			parent_node
+			// parent_node
 		);
 	}
 }

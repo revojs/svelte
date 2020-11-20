@@ -2,7 +2,7 @@ import Renderer from './Renderer';
 import Wrapper from './wrappers/shared/Wrapper';
 import { b, x } from 'code-red';
 import { Node, Identifier, ArrayPattern } from 'estree';
-import { is_head } from './wrappers/shared/is_head';
+// import { is_head } from './wrappers/shared/is_head';
 
 export interface Bindings {
 	object: Identifier;
@@ -166,23 +166,26 @@ export default class Block {
 		id: Identifier,
 		render_statement: Node,
 		claim_statement: Node,
-		parent_node: Node,
-		no_detach?: boolean
+		// parent_node: Node,
+		// no_detach?: boolean
 	) {
 		this.add_variable(id);
-		this.chunks.create.push(b`${id} = ${render_statement};`);
+		this.chunks.create.push(b`#target.setData({
+			${id}: ${render_statement}
+		})`);
+		// this.chunks.create.push(b`${id} = ${render_statement};`);
 
 		if (this.renderer.options.hydratable) {
 			this.chunks.claim.push(b`${id} = ${claim_statement || render_statement};`);
 		}
 
-		if (parent_node) {
-			this.chunks.mount.push(b`@append(${parent_node}, ${id});`);
-			if (is_head(parent_node) && !no_detach) this.chunks.destroy.push(b`@detach(${id});`);
-		} else {
-			this.chunks.mount.push(b`@insert(#target, ${id}, #anchor);`);
-			if (!no_detach) this.chunks.destroy.push(b`if (detaching) @detach(${id});`);
-		}
+		// if (parent_node) {
+		// 	this.chunks.mount.push(b`@append(${parent_node}, ${id});`);
+		// 	if (is_head(parent_node) && !no_detach) this.chunks.destroy.push(b`@detach(${id});`);
+		// } else {
+		// 	this.chunks.mount.push(b`@insert(#target, ${id}, #anchor);`);
+		// 	if (!no_detach) this.chunks.destroy.push(b`if (detaching) @detach(${id});`);
+		// }
 	}
 
 	add_intro(local?: boolean) {
@@ -255,7 +258,9 @@ export default class Block {
 			this.chunks.hydrate.push(b`this.first = ${this.first};`);
 		}
 
-		if (this.chunks.create.length === 0 && this.chunks.hydrate.length === 0) {
+		if (
+			this.chunks.create.length === 0 &&
+			this.chunks.hydrate.length === 0) {
 			properties.create = noop;
 		} else {
 			const hydrate = this.chunks.hydrate.length > 0 && (
@@ -287,17 +292,18 @@ export default class Block {
 			}`;
 		}
 
-		if (this.chunks.mount.length === 0) {
-			properties.mount = noop;
-		} else if (this.event_listeners.length === 0) {
-			properties.mount = x`function #mount(#target, #anchor) {
-				${this.chunks.mount}
-			}`;
-		} else {
-			properties.mount = x`function #mount(#target, #anchor) {
-				${this.chunks.mount}
-			}`;
-		}
+		properties.mount = noop;
+		// if (this.chunks.mount.length === 0) {
+		// 	properties.mount = noop;
+		// } else if (this.event_listeners.length === 0) {
+		// 	properties.mount = x`function #mount(#target, #anchor) {
+		// 		${this.chunks.mount}
+		// 	}`;
+		// } else {
+		// 	properties.mount = x`function #mount(#target, #anchor) {
+		// 		${this.chunks.mount}
+		// 	}`;
+		// }
 
 		if (this.has_update_method || this.maintain_context) {
 			if (this.chunks.update.length === 0 && !this.maintain_context) {
@@ -431,7 +437,7 @@ export default class Block {
 	render() {
 		const key = this.key && this.get_unique_name('key');
 
-		const args: any[] = [x`#ctx`];
+		const args: any[] = [x`#ctx`, x`#target`];
 		if (key) args.unshift(key);
 
 		const fn = b`function ${this.name}(${args}) {

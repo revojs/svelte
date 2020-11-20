@@ -41,14 +41,14 @@ export default class TextWrapper extends Wrapper {
 	}
 
 	render(block: Block, parent_node: Identifier, parent_nodes: Identifier) {
-		if (this.skip) return;
-		const use_space = this.use_space();
+		// if (this.skip) return;
+		// const use_space = this.use_space();
 
-		block.add_element(
-			this.var,
-			use_space ? x`@space()` : x`@text("${this.data}")`,
-			parent_nodes && (use_space ? x`@claim_space(${parent_nodes})` : x`@claim_text(${parent_nodes}, "${this.data}")`),
-			parent_node as Identifier
-		);
+		// block.add_element(
+		// 	this.var,
+		// 	use_space ? x`@space()` : x`@text("${this.data}")`,
+		// 	parent_nodes && (use_space ? x`@claim_space(${parent_nodes})` : x`@claim_text(${parent_nodes}, "${this.data}")`),
+		// 	parent_node as Identifier
+		// );
 	}
 }
