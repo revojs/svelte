@@ -7,6 +7,11 @@ import { Expression } from 'estree';
 const TRUE = x`true`;
 const FALSE = x`false`;
 
+let id = 0;
+function eventName() {
+	return `event${id++}`;
+}
+
 export default class EventHandlerWrapper {
 	node: EventHandler;
 	parent: Wrapper;
@@ -65,8 +70,11 @@ export default class EventHandlerWrapper {
 			args.push(this.node.modifiers.has('stopPropagation') ? TRUE : FALSE);
 		}
 
+		// block.event_listeners.push(
+		// 	x`@listen(${target}, "${this.node.name}", ${snippet}, ${args})`
+		// )
 		block.event_listeners.push(
-			x`@listen(${target}, "${this.node.name}", ${snippet}, ${args})`
+			x`#target['${eventName()}'] = ${snippet}`
 		);
 	}
 }

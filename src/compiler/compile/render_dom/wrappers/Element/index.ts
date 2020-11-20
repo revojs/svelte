@@ -281,7 +281,7 @@ export default class ElementWrapper extends Wrapper {
 
 		if (parent_node) {
 			block.chunks.mount.push(
-				b`@append(${parent_node}, ${node});`
+				// b`@append(${parent_node}, ${node});`
 			);
 
 			if (is_head(parent_node)) {

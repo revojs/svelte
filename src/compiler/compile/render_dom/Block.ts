@@ -292,18 +292,17 @@ export default class Block {
 			}`;
 		}
 
-		properties.mount = noop;
-		// if (this.chunks.mount.length === 0) {
-		// 	properties.mount = noop;
-		// } else if (this.event_listeners.length === 0) {
-		// 	properties.mount = x`function #mount(#target, #anchor) {
-		// 		${this.chunks.mount}
-		// 	}`;
-		// } else {
-		// 	properties.mount = x`function #mount(#target, #anchor) {
-		// 		${this.chunks.mount}
-		// 	}`;
-		// }
+		if (this.chunks.mount.length === 0) {
+			properties.mount = noop;
+		} else if (this.event_listeners.length === 0) {
+			properties.mount = x`function #mount(#target, #anchor) {
+				${this.chunks.mount}
+			}`;
+		} else {
+			properties.mount = x`function #mount(#target, #anchor) {
+				${this.chunks.mount}
+			}`;
+		}
 
 		if (this.has_update_method || this.maintain_context) {
 			if (this.chunks.update.length === 0 && !this.maintain_context) {
@@ -456,39 +455,51 @@ export default class Block {
 			this.add_variable({ type: 'Identifier', name: '#mounted' });
 			this.chunks.destroy.push(b`#mounted = false`);
 
-			const dispose: Identifier = {
-				type: 'Identifier',
-				name: `#dispose${chunk}`
-			};
+			// const dispose: Identifier = {
+			// 	type: 'Identifier',
+			// 	name: `#dispose${chunk}`
+			// };
 
-			this.add_variable(dispose);
+			// this.add_variable(dispose);
 
 			if (this.event_listeners.length === 1) {
 				this.chunks.mount.push(
+					// b`
+					// 	if (!#mounted) {
+					// 		${dispose} = ${this.event_listeners[0]};
+					// 		#mounted = true;
+					// 	}
+					// `
 					b`
 						if (!#mounted) {
-							${dispose} = ${this.event_listeners[0]};
+							${this.event_listeners[0]};
 							#mounted = true;
 						}
 					`
 				);
 
-				this.chunks.destroy.push(
-					b`${dispose}();`
-				);
+				// this.chunks.destroy.push(
+				// 	b`${dispose}();`
+				// );
 			} else {
+				// this.chunks.mount.push(b`
+				// 	if (!#mounted) {
+				// 		${dispose} = [
+				// 			${this.event_listeners}
+				// 		];
+				// 		#mounted = true;
+				// 	}
+				// `);
 				this.chunks.mount.push(b`
 					if (!#mounted) {
-						${dispose} = [
-							${this.event_listeners}
-						];
+						${this.event_listeners};
 						#mounted = true;
 					}
 				`);
 
-				this.chunks.destroy.push(
-					b`@run_all(${dispose});`
-				);
+				// this.chunks.destroy.push(
+				// 	b`@run_all(${dispose});`
+				// );
 			}
 		}
 	}
