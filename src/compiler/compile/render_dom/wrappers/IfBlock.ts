@@ -78,8 +78,8 @@ class IfBlockBranch extends Wrapper {
 		});
 
 		const condition = conditionName();
-		this.block.chunks.create.push(b`#target.setData({ ${condition}: true })`);
-		this.block.chunks.destroy.push(b`#target.setData({ ${condition}: false })`);
+		this.block.chunks.create.push(b`#data.${condition} = true`);
+		this.block.chunks.destroy.push(b`#data.${condition} = false`);
 
 		this.fragment = new FragmentWrapper(renderer, this.block, node.children, parent, strip_whitespace, next_sibling);
 

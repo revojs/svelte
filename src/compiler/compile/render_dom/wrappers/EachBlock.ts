@@ -504,7 +504,7 @@ export default class EachBlockWrapper extends Wrapper {
 			let ${iterations} = [];
 
 			for (let #i = 0; #i < ${data_length}; #i += 1) {
-				${iterations}[#i] = ${create_each_block}(${this.vars.get_each_context}(#ctx, ${this.vars.each_block_value}, #i));
+				${iterations}[#i] = ${create_each_block}(${this.vars.get_each_context}(#ctx, ${this.vars.each_block_value}, #i), #target,'${this.vars.each_block_value.name}');
 			}
 		`);
 

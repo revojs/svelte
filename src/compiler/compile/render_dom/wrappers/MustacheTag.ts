@@ -18,7 +18,7 @@ export default class MustacheTagWrapper extends Tag {
 		const { init } = this.rename_this_method(
 			block,
 			// value => x`@set_data(${this.var}, ${value})`
-			value => x`#target.setData({ ${this.var}: ${value}, })`
+			value => x`#data.${this.var} = ${value}`
 		);
 
 		block.add_element(

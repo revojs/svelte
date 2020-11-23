@@ -170,9 +170,7 @@ export default class Block {
 		// no_detach?: boolean
 	) {
 		this.add_variable(id);
-		this.chunks.create.push(b`#target.setData({
-			${id}: ${render_statement}
-		})`);
+		this.chunks.create.push(b`#data.${id} = ${render_statement}`);
 		// this.chunks.create.push(b`${id} = ${render_statement};`);
 
 		if (this.renderer.options.hydratable) {
@@ -270,8 +268,10 @@ export default class Block {
 			);
 
 			properties.create = x`function #create() {
+				const #data = {};
 				${this.chunks.create}
 				${hydrate}
+				#target.setData(#data)
 			}`;
 		}
 
@@ -316,8 +316,10 @@ export default class Block {
 				}
 
 				properties.update = x`function #update(${ctx}, ${dirty}) {
+					const #data = {};
 					${this.maintain_context && b`#ctx = ${ctx};`}
 					${this.chunks.update}
+					#target.setData(#data);
 				}`;
 			}
 		}
@@ -359,7 +361,9 @@ export default class Block {
 			properties.destroy = noop;
 		} else {
 			properties.destroy = x`function #destroy(detaching) {
+				const #data = {};
 				${this.chunks.destroy}
+				#target.setData(#data);
 			}`;
 		}
 
