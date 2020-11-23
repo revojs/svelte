@@ -135,11 +135,15 @@ export default class AttributeWrapper extends BaseAttributeWrapper {
 			// block.chunks.hydrate.push(
 			// 	b`${method}(${element.var}, "${name}", ${init});`
 			// );
-			block.chunks.create.push(
-				b`#target.setData({ ${should_cache ? this.last : value}: ${init} })`
-			)
-			// updater = b`${method}(${element.var}, "${name}", ${should_cache ? this.last : value});`;
-			updater = b`#target.setData({ ${should_cache ? this.last : value}: ${should_cache ? this.last : value} })`;
+			const key = should_cache ? this.last : value;
+
+			if (key.type === 'Identifier') {
+				block.chunks.create.push(
+					b`#target.setData({ ${key}: ${init} })`
+				)
+				// updater = b`${method}(${element.var}, "${name}", ${should_cache ? this.last : value});`;
+				updater = b`#target.setData({ ${key}: ${should_cache ? this.last : value} })`;
+			}
 
 		}
 
